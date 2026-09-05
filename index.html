@@ -179,7 +179,7 @@
 
 <main>
   <div class="grid" id="grid">
-    <div class="placeholder">Fetching team list from ESPN…</div>
+    <div class="placeholder">Fetching team list…</div>
   </div>
 </main>
 
@@ -191,39 +191,26 @@
   const statusEl = document.getElementById('status');
   const downloadAllBtn = document.getElementById('downloadAllBtn');
 
-  let teams = []; // { name, url }
-  const PROXY = 'https://api.allorigins.win/raw?url=';
+  let teams = []; // { name, url } — url points at our own /api/logo proxy
 
   function safeFileName(name) {
     return name.replace(/[^a-z0-9]+/gi, '-').replace(/(^-|-$)/g, '').toLowerCase();
   }
 
-  // Tries a direct fetch first (fast when it works), and if that fails
-  // (common when this page is opened as a local file:// document, since
-  // some servers reject the "null" origin that browsers send in that case),
-  // falls back to a public CORS proxy.
-  async function fetchWithFallback(url) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('status ' + res.status);
-      return res;
-    } catch (e) {
-      const res = await fetch(PROXY + encodeURIComponent(url));
-      if (!res.ok) throw new Error('proxy status ' + res.status);
-      return res;
-    }
-  }
-
   async function loadTeams() {
     try {
-      const res = await fetchWithFallback('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams?limit=32');
+      const res = await fetch('/api/teams');
+      if (!res.ok) throw new Error('server returned ' + res.status);
       const data = await res.json();
       const list = data?.sports?.[0]?.leagues?.[0]?.teams || [];
 
       teams = list.map(t => {
         const team = t.team;
-        const logo = (team.logos && team.logos[0] && team.logos[0].href) || null;
-        return { name: team.displayName, url: logo };
+        const rawLogo = (team.logos && team.logos[0] && team.logos[0].href) || null;
+        return {
+          name: team.displayName,
+          url: rawLogo ? '/api/logo?url=' + encodeURIComponent(rawLogo) : null
+        };
       }).filter(t => t.url);
 
       if (teams.length === 0) throw new Error('No teams found in response');
@@ -233,8 +220,8 @@
       downloadAllBtn.disabled = false;
     } catch (err) {
       grid.innerHTML = `<div class="error">
-        Couldn't reach ESPN's API from this page (${err.message}).<br>
-        This can happen if the browser blocks the request — try opening this file directly in a browser tab (not inside another app), or check your connection and reload.
+        Couldn't load the team list (${err.message}).<br>
+        Make sure the api/teams.js and api/logo.js functions deployed correctly on Vercel, then reload.
       </div>`;
       statusEl.textContent = 'Failed to load';
     }
@@ -263,7 +250,7 @@
     btn.disabled = true;
     btn.textContent = 'Downloading…';
     try {
-      const res = await fetchWithFallback(team.url);
+      const res = await fetch(team.url);
       const blob = await res.blob();
       triggerDownload(blob, safeFileName(team.name) + '.png');
       btn.textContent = 'Saved ✓';
@@ -292,7 +279,7 @@
 
     for (const team of teams) {
       try {
-        const res = await fetchWithFallback(team.url);
+        const res = await fetch(team.url);
         const blob = await res.blob();
         zip.file(safeFileName(team.name) + '.png', blob);
       } catch (e) {
