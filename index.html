@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFL Logo Vault</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --field: #0b3d2e;
+    --field-dark: #082a20;
+    --chalk: #f4f2ec;
+    --charcoal: #14181a;
+    --card: #17211d;
+    --gold: #c9a227;
+    --line: rgba(244,242,236,0.14);
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    background: var(--field);
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 78px, var(--line) 78px, var(--line) 80px);
+    color: var(--chalk);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+  }
+
+  header{
+    padding: 56px 24px 40px;
+    text-align:center;
+    border-bottom: 2px solid var(--line);
+    background: linear-gradient(180deg, var(--field-dark), transparent);
+  }
+
+  h1{
+    font-family:'Anton', sans-serif;
+    font-weight:400;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    margin:0;
+    letter-spacing: 1px;
+    color: var(--chalk);
+    text-shadow: 3px 3px 0 var(--gold);
+  }
+
+  header p{
+    margin: 14px auto 0;
+    max-width: 480px;
+    color: rgba(244,242,236,0.75);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .controls{
+    max-width: 1100px;
+    margin: 32px auto 0;
+    padding: 0 24px;
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .status{
+    font-size: 0.9rem;
+    color: rgba(244,242,236,0.65);
+  }
+
+  button.primary{
+    background: var(--gold);
+    color: var(--field-dark);
+    border: none;
+    font-family:'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 26px;
+    border-radius: 4px;
+    cursor:pointer;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  button.primary:hover{ background:#e0b62d; transform: translateY(-1px); }
+  button.primary:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+  main{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 18px;
+  }
+
+  .card{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px 16px 16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 12px;
+    text-align:center;
+  }
+
+  .card img{
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    background: rgba(244,242,236,0.04);
+    border-radius: 4px;
+    padding: 8px;
+  }
+
+  .card .name{
+    font-weight: 600;
+    font-size: 0.92rem;
+    line-height: 1.25;
+  }
+
+  .card button{
+    width:100%;
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    font-family:'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    padding: 8px 10px;
+    border-radius: 4px;
+    cursor:pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+  .card button:hover{ background: var(--gold); color: var(--field-dark); }
+  .card button:disabled{ opacity: 0.5; cursor: default; }
+
+  .placeholder{
+    grid-column: 1 / -1;
+    text-align:center;
+    color: rgba(244,242,236,0.6);
+    padding: 60px 0;
+    font-size: 1rem;
+  }
+
+  .error{
+    grid-column: 1 / -1;
+    text-align:center;
+    color: #e88a8a;
+    padding: 40px 20px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  footer{
+    text-align:center;
+    padding: 24px;
+    color: rgba(244,242,236,0.4);
+    font-size: 0.8rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NFL Logo Vault</h1>
+  <p>Every current NFL team logo, pulled live from ESPN, saved with the team's name.</p>
+</header>
+
+<div class="controls">
+  <div class="status" id="status">Loading teams…</div>
+  <button class="primary" id="downloadAllBtn" disabled>Download all as ZIP</button>
+</div>
+
+<main>
+  <div class="grid" id="grid">
+    <div class="placeholder">Fetching team list from ESPN…</div>
+  </div>
+</main>
+
+<footer>Logos are trademarks of their respective NFL teams. For personal / fair-use purposes only.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+  const grid = document.getElementById('grid');
+  const statusEl = document.getElementById('status');
+  const downloadAllBtn = document.getElementById('downloadAllBtn');
+
+  let teams = []; // { name, url }
+  const PROXY = 'https://api.allorigins.win/raw?url=';
+
+  function safeFileName(name) {
+    return name.replace(/[^a-z0-9]+/gi, '-').replace(/(^-|-$)/g, '').toLowerCase();
+  }
+
+  // Tries a direct fetch first (fast when it works), and if that fails
+  // (common when this page is opened as a local file:// document, since
+  // some servers reject the "null" origin that browsers send in that case),
+  // falls back to a public CORS proxy.
+  async function fetchWithFallback(url) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('status ' + res.status);
+      return res;
+    } catch (e) {
+      const res = await fetch(PROXY + encodeURIComponent(url));
+      if (!res.ok) throw new Error('proxy status ' + res.status);
+      return res;
+    }
+  }
+
+  async function loadTeams() {
+    try {
+      const res = await fetchWithFallback('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams?limit=32');
+      const data = await res.json();
+      const list = data?.sports?.[0]?.leagues?.[0]?.teams || [];
+
+      teams = list.map(t => {
+        const team = t.team;
+        const logo = (team.logos && team.logos[0] && team.logos[0].href) || null;
+        return { name: team.displayName, url: logo };
+      }).filter(t => t.url);
+
+      if (teams.length === 0) throw new Error('No teams found in response');
+
+      renderGrid();
+      statusEl.textContent = `${teams.length} teams loaded`;
+      downloadAllBtn.disabled = false;
+    } catch (err) {
+      grid.innerHTML = `<div class="error">
+        Couldn't reach ESPN's API from this page (${err.message}).<br>
+        This can happen if the browser blocks the request — try opening this file directly in a browser tab (not inside another app), or check your connection and reload.
+      </div>`;
+      statusEl.textContent = 'Failed to load';
+    }
+  }
+
+  function renderGrid() {
+    grid.innerHTML = '';
+    teams.forEach((team, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${team.url}" alt="${team.name} logo" loading="lazy">
+        <div class="name">${team.name}</div>
+        <button data-index="${i}">Download PNG</button>
+      `;
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => downloadSingle(teams[+btn.dataset.index], btn));
+    });
+  }
+
+  async function downloadSingle(team, btn) {
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Downloading…';
+    try {
+      const res = await fetchWithFallback(team.url);
+      const blob = await res.blob();
+      triggerDownload(blob, safeFileName(team.name) + '.png');
+      btn.textContent = 'Saved ✓';
+    } catch (err) {
+      btn.textContent = 'Failed';
+    } finally {
+      setTimeout(() => { btn.disabled = false; btn.textContent = originalText; }, 1500);
+    }
+  }
+
+  function triggerDownload(blob, filename) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 5000);
+  }
+
+  async function downloadAll() {
+    downloadAllBtn.disabled = true;
+    const originalText = downloadAllBtn.textContent;
+    const zip = new JSZip();
+    let done = 0;
+
+    for (const team of teams) {
+      try {
+        const res = await fetchWithFallback(team.url);
+        const blob = await res.blob();
+        zip.file(safeFileName(team.name) + '.png', blob);
+      } catch (e) {
+        // skip any logo that fails, keep going
+      }
+      done++;
+      downloadAllBtn.textContent = `Zipping… ${done}/${teams.length}`;
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    triggerDownload(content, 'nfl-team-logos.zip');
+    downloadAllBtn.textContent = originalText;
+    downloadAllBtn.disabled = false;
+  }
+
+  downloadAllBtn.addEventListener('click', downloadAll);
+  loadTeams();
+</script>
+
+</body>
+</html>
