@@ -3,261 +3,628 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NFL Logo Vault</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap');
+<title>NFL Team Logos – download by abbreviation</title>
+<meta name="description" content="Download all 32 NFL team logos as PNG files named by team abbreviation, like KC.png and SF.png.">
+<link rel="icon" href="/api/logo?url=https%3A%2F%2Fa.espncdn.com%2Fi%2Fteamlogos%2Fleagues%2F500%2Fnfl.png">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
   :root{
-    --field: #0b3d2e;
-    --field-dark: #082a20;
-    --chalk: #f4f2ec;
-    --charcoal: #14181a;
-    --card: #17211d;
-    --gold: #c9a227;
-    --line: rgba(244,242,236,0.14);
+    color-scheme: dark;
+
+    --ink:      #010f24;   /* page */
+    --navy:     #013369;   /* NFL blue */
+    --navy-hi:  #0a4a94;
+    --red:      #d50a0a;   /* NFL red */
+    --red-hi:   #ec1313;
+    --white:    #ffffff;
+    --muted:    #a9bad4;
+    --line:     rgba(255,255,255,0.14);
+
+    --display: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+    --body:    'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
   *{ box-sizing: border-box; }
+  [hidden]{ display:none !important; }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  html{ scroll-behavior: smooth; }
 
   body{
     margin:0;
-    background: var(--field);
-    background-image:
-      repeating-linear-gradient(0deg, transparent, transparent 78px, var(--line) 78px, var(--line) 80px);
-    color: var(--chalk);
-    font-family: 'Inter', sans-serif;
     min-height:100vh;
+    background:
+      radial-gradient(900px 420px at 50% -80px, rgba(10,74,148,0.75), transparent 70%),
+      var(--ink);
+    color: var(--white);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
 
-  header{
-    padding: 56px 24px 40px;
-    text-align:center;
-    border-bottom: 2px solid var(--line);
-    background: linear-gradient(180deg, var(--field-dark), transparent);
+  :focus-visible{
+    outline: 3px solid var(--white);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Header ---------- */
+  .hero{
+    position: relative;
+    padding: 52px 0 60px;
+  }
+  .hero-inner{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .shield{
+    flex: none;
+    width: 132px;
+    height: 132px;
+    display: grid;
+    place-items: center;
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: 0 0 0 6px rgba(255,255,255,0.08), 0 18px 40px rgba(0,0,0,0.45);
+  }
+  .shield img{ width: 104px; height: 104px; object-fit: contain; display:block; }
+  .shield.broken::after{
+    content: 'NFL';
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 2.6rem;
+    color: var(--navy);
   }
 
   h1{
-    font-family:'Anton', sans-serif;
-    font-weight:400;
-    font-size: clamp(2.4rem, 6vw, 4.2rem);
-    margin:0;
-    letter-spacing: 1px;
-    color: var(--chalk);
-    text-shadow: 3px 3px 0 var(--gold);
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(2.8rem, 7.5vw, 5.4rem);
+    line-height: 0.92;
+    letter-spacing: 0.005em;
+    text-transform: uppercase;
+  }
+  .hero p{
+    margin: 16px 0 0;
+    max-width: 640px;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  .hero p code{
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.12em;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    background: rgba(255,255,255,0.1);
+    padding: 1px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
   }
 
-  header p{
-    margin: 14px auto 0;
-    max-width: 480px;
-    color: rgba(244,242,236,0.75);
-    font-size: 1rem;
-    line-height: 1.5;
+  /* yard-line ruler along the bottom edge of the header */
+  .yard{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height: 16px;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.55) 2px, transparent 2px) 0 100% / 70px 16px repeat-x,
+      linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px) 0 100% / 14px 8px repeat-x;
+    border-bottom: 2px solid var(--red);
   }
 
-  .controls{
-    max-width: 1100px;
-    margin: 32px auto 0;
-    padding: 0 24px;
-    display:flex;
-    justify-content: space-between;
-    align-items:center;
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(1,15,36,0.88);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .toolbar-inner{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
     gap: 16px;
     flex-wrap: wrap;
   }
 
+  .search{
+    position: relative;
+    flex: 1 1 260px;
+    max-width: 380px;
+  }
+  .search svg{
+    position:absolute; left: 13px; top: 50%;
+    transform: translateY(-50%);
+    width: 18px; height: 18px;
+    color: var(--muted);
+    pointer-events:none;
+  }
+  .search input{
+    width: 100%;
+    height: 46px;
+    padding: 0 14px 0 40px;
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: 500 1rem var(--body);
+  }
+  .search input::placeholder{ color: var(--muted); opacity: 1; }
+  .search input:hover{ border-color: rgba(255,255,255,0.32); }
+  .search input:focus-visible{ outline-offset: 2px; }
+
   .status{
-    font-size: 0.9rem;
-    color: rgba(244,242,236,0.65);
-  }
-
-  button.primary{
-    background: var(--gold);
-    color: var(--field-dark);
-    border: none;
-    font-family:'Inter', sans-serif;
-    font-weight: 700;
+    flex: 1 1 auto;
+    color: var(--muted);
     font-size: 0.95rem;
-    padding: 14px 26px;
-    border-radius: 4px;
-    cursor:pointer;
-    transition: transform 0.12s ease, background 0.12s ease;
+    min-width: 0;
   }
-  button.primary:hover{ background:#e0b62d; transform: translateY(-1px); }
-  button.primary:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+  .status strong{ color: var(--white); font-weight: 600; }
 
+  .btn-all{
+    position: relative;
+    overflow: hidden;
+    flex: none;
+    height: 46px;
+    padding: 0 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--red);
+    color: var(--white);
+    border: 0;
+    border-radius: 6px;
+    font: 600 1rem var(--body);
+    cursor: pointer;
+    isolation: isolate;
+    transition: background 0.15s ease;
+  }
+  .btn-all::before{ /* progress fill */
+    content:'';
+    position:absolute; inset:0;
+    width: var(--p, 0%);
+    background: #8c0505;
+    z-index:-1;
+    transition: width 0.2s ease;
+  }
+  .btn-all svg{ width:18px; height:18px; flex:none; }
+  .btn-all:hover:not(:disabled){ background: var(--red-hi); }
+  .btn-all:disabled{ cursor: default; }
+  .btn-all:disabled:not(.busy){ opacity: 0.45; }
+
+  /* ---------- Grid ---------- */
   main{
-    max-width: 1100px;
+    max-width: 1180px;
     margin: 0 auto;
     padding: 32px 24px 80px;
   }
-
   .grid{
     display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 18px;
+    grid-template-columns: repeat(auto-fill, minmax(206px, 1fr));
+    gap: 20px;
   }
 
   .card{
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 20px 16px 16px;
+    --team: #013369;
     display:flex;
     flex-direction:column;
-    align-items:center;
-    gap: 12px;
-    text-align:center;
+    background: var(--navy);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+    animation: deal 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(min(var(--i, 0), 14) * 35ms);
   }
 
-  .card img{
-    width: 84px;
-    height: 84px;
+  .tile{
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 170px;
+    background: #fff;
+    background: radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--team) 16%, #fff) 0%, #fff 68%);
+  }
+  .tile::before{ /* team-colour band */
+    content:'';
+    position:absolute; left:0; right:0; top:0;
+    height: 6px;
+    background: var(--team);
+  }
+  .tile img{
+    width: 118px; height: 118px;
     object-fit: contain;
-    background: rgba(244,242,236,0.04);
-    border-radius: 4px;
-    padding: 8px;
+    display:block;
+    transition: transform 0.25s ease;
+  }
+  .card:hover .tile img{ transform: scale(1.06); }
+  .tile.broken::after{
+    content: attr(data-abbr);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 3rem;
+    color: var(--team);
   }
 
-  .card .name{
-    font-weight: 600;
-    font-size: 0.92rem;
-    line-height: 1.25;
+  .tag{
+    display:flex;
+    flex-direction:column;
+    gap: 2px;
+    padding: 14px 16px 16px;
+  }
+  .abbr{
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 2.7rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .name{
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.3;
+    margin-bottom: 12px;
   }
 
-  .card button{
+  .dl{
     width:100%;
-    background: transparent;
-    color: var(--gold);
-    border: 1px solid var(--gold);
-    font-family:'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 0.82rem;
-    padding: 8px 10px;
-    border-radius: 4px;
+    height: 42px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap: 8px;
+    background: rgba(255,255,255,0.1);
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    font: 600 0.92rem var(--body);
     cursor:pointer;
-    transition: background 0.12s ease, color 0.12s ease;
+    transition: background 0.15s ease, border-color 0.15s ease;
   }
-  .card button:hover{ background: var(--gold); color: var(--field-dark); }
-  .card button:disabled{ opacity: 0.5; cursor: default; }
+  .dl svg{ width:16px; height:16px; flex:none; }
+  .dl:hover:not(:disabled){ background: var(--red); border-color: var(--red); }
+  .dl:disabled{ cursor: default; }
+  .dl.done{ background: #0f7a3d; border-color: #0f7a3d; }
+  .dl.fail{ background: #7a1010; border-color: #7a1010; }
+  .dl .file{ font-family: var(--display); font-weight: 700; font-size: 1.08rem; letter-spacing: 0.04em; }
 
-  .placeholder{
+  /* ---------- Loading / empty / error ---------- */
+  .skel{
+    height: 318px;
+    border-radius: 10px;
+    background: linear-gradient(100deg, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.11) 50%, rgba(255,255,255,0.05) 70%);
+    background-size: 300% 100%;
+    animation: shimmer 1.3s linear infinite;
+  }
+
+  .message{
     grid-column: 1 / -1;
     text-align:center;
-    color: rgba(244,242,236,0.6);
-    padding: 60px 0;
-    font-size: 1rem;
-  }
-
-  .error{
-    grid-column: 1 / -1;
-    text-align:center;
-    color: #e88a8a;
-    padding: 40px 20px;
-    font-size: 0.95rem;
+    color: var(--muted);
+    padding: 64px 20px;
     line-height: 1.6;
   }
+  .message strong{ color: var(--white); }
+  .message.error{ color: #ffb4b4; }
+  .message button{
+    margin-top: 18px;
+    height: 44px;
+    padding: 0 22px;
+    background: var(--red);
+    color: var(--white);
+    border:0; border-radius: 6px;
+    font: 600 1rem var(--body);
+    cursor:pointer;
+  }
+  .message button:hover{ background: var(--red-hi); }
 
   footer{
-    text-align:center;
-    padding: 24px;
-    color: rgba(244,242,236,0.4);
-    font-size: 0.8rem;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 40px;
+    border-top: 1px solid var(--line);
+    color: rgba(169,186,212,0.75);
+    font-size: 0.85rem;
+  }
+
+  @keyframes deal{
+    from{ opacity:0; transform: translateY(12px) scale(0.98); }
+    to{   opacity:1; transform:none; }
+  }
+  @keyframes shimmer{
+    from{ background-position: 100% 0; }
+    to{   background-position: -100% 0; }
+  }
+
+  @media (max-width: 720px){
+    .hero{ padding: 28px 0 40px; }
+    .hero-inner{ padding: 0 16px; flex-direction: column; align-items: flex-start; gap: 18px; }
+    .shield{ width: 84px; height: 84px; border-radius: 12px; }
+    .shield img{ width: 66px; height: 66px; }
+    .hero p{ font-size: 1rem; }
+    .toolbar{ position: static; }
+    .toolbar-inner{ padding: 12px 16px; }
+    .search{ max-width: none; flex-basis: 100%; }
+    .status{ flex-basis: 0; }
+    .btn-all{ flex: 1 1 auto; justify-content:center; }
+    main{ padding: 24px 16px 64px; }
+    .grid{ grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .tile{ height: 140px; }
+    .tile img{ width: 96px; height: 96px; }
+    .abbr{ font-size: 2.2rem; }
+    .tag{ padding: 12px 12px 14px; }
+    .name{ min-height: 2.6em; }
+    .dl .verb{ display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+    .card, .skel{ animation: none; }
+    .tile img, .btn-all::before{ transition: none; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>NFL Logo Vault</h1>
-  <p>Every current NFL team logo, pulled live from ESPN, saved with the team's name.</p>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="shield" id="shield">
+      <img id="shieldImg" alt="NFL shield" width="104" height="104"
+           src="/api/logo?url=https%3A%2F%2Fa.espncdn.com%2Fi%2Fteamlogos%2Fleagues%2F500%2Fnfl.png">
+    </div>
+    <div>
+      <h1>NFL team logos</h1>
+      <p>All 32 teams as PNG files, named by abbreviation: <code>KC.png</code> <code>SF.png</code> <code>DAL.png</code></p>
+    </div>
+  </div>
+  <div class="yard" aria-hidden="true"></div>
 </header>
 
-<div class="controls">
-  <div class="status" id="status">Loading teams…</div>
-  <button class="primary" id="downloadAllBtn" disabled>Download all as ZIP</button>
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <label class="search">
+      <span class="sr-only">Search teams</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="search" type="search" placeholder="Search team or abbreviation" autocomplete="off" disabled>
+    </label>
+
+    <div class="status" id="status" role="status" aria-live="polite">Loading teams…</div>
+
+    <button class="btn-all" id="downloadAllBtn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+      <span id="downloadAllLabel">Download all as ZIP</span>
+    </button>
+  </div>
 </div>
 
 <main>
-  <div class="grid" id="grid">
-    <div class="placeholder">Fetching team list…</div>
-  </div>
+  <div class="grid" id="grid" aria-busy="true"></div>
 </main>
 
-<footer>Logos are trademarks of their respective NFL teams. For personal / fair-use purposes only.</footer>
+<footer>
+  Logos are trademarks of their respective NFL teams and are served from ESPN's CDN. Unofficial fan tool, not affiliated with or endorsed by the NFL. For personal / fair-use purposes only.
+</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-  const grid = document.getElementById('grid');
-  const statusEl = document.getElementById('status');
+  const grid           = document.getElementById('grid');
+  const statusEl       = document.getElementById('status');
+  const searchEl       = document.getElementById('search');
   const downloadAllBtn = document.getElementById('downloadAllBtn');
+  const downloadAllLbl = document.getElementById('downloadAllLabel');
+  const shield         = document.getElementById('shield');
+  const shieldImg      = document.getElementById('shieldImg');
 
-  let teams = []; // { name, url } — url points at our own /api/logo proxy
+  const ALL_LABEL = 'Download all as ZIP';
+  const CONCURRENCY = 6;
 
-  function safeFileName(name) {
-    return name.replace(/[^a-z0-9]+/gi, '-').replace(/(^-|-$)/g, '').toLowerCase();
+  // ESPN calls Washington "WSH"; the NFL's own code is "WAS".
+  const ABBR_FIX = { WSH: 'WAS' };
+
+  const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>';
+  const ICON_CHECK    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+
+  let teams = [];   // { name, abbr, file, color, url }
+  let cards = [];   // { el, team }
+
+  shieldImg.addEventListener('error', () => { shieldImg.remove(); shield.classList.add('broken'); });
+
+  function slug(name) {
+    return name.replace(/[^a-z0-9]+/gi, '-').replace(/(^-|-$)/g, '').toUpperCase();
+  }
+
+  function teamColor(hex) {
+    return /^[0-9a-f]{6}$/i.test(hex || '') ? '#' + hex : '#013369';
+  }
+
+  function showSkeleton(count = 12) {
+    grid.setAttribute('aria-busy', 'true');
+    grid.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+      const s = document.createElement('div');
+      s.className = 'skel';
+      grid.appendChild(s);
+    }
+  }
+
+  function showError(detail) {
+    grid.setAttribute('aria-busy', 'false');
+    grid.innerHTML = '';
+    const box = document.createElement('div');
+    box.className = 'message error';
+    const text = document.createElement('div');
+    text.innerHTML = '<strong>Couldn’t load the team list.</strong><br>';
+    text.append(detail + '. Check that api/teams.js and api/logo.js deployed on Vercel, then try again.');
+    const retry = document.createElement('button');
+    retry.textContent = 'Try again';
+    retry.addEventListener('click', loadTeams);
+    box.append(text, retry);
+    grid.appendChild(box);
+    statusEl.textContent = 'Failed to load';
   }
 
   async function loadTeams() {
+    showSkeleton();
+    statusEl.textContent = 'Loading teams…';
+    searchEl.disabled = true;
+    downloadAllBtn.disabled = true;
+
     try {
       const res = await fetch('/api/teams');
       if (!res.ok) throw new Error('server returned ' + res.status);
       const data = await res.json();
       const list = data?.sports?.[0]?.leagues?.[0]?.teams || [];
 
+      const used = new Set();
       teams = list.map(t => {
         const team = t.team;
         const rawLogo = (team.logos && team.logos[0] && team.logos[0].href) || null;
+        if (!rawLogo) return null;
+
+        let abbr = (ABBR_FIX[team.abbreviation] || team.abbreviation || slug(team.displayName)).toUpperCase();
+        let unique = abbr, n = 2;
+        while (used.has(unique)) unique = abbr + '-' + n++;
+        used.add(unique);
+
         return {
           name: team.displayName,
-          url: rawLogo ? '/api/logo?url=' + encodeURIComponent(rawLogo) : null
+          abbr: unique,
+          file: unique + '.png',
+          color: teamColor(team.color),
+          url: '/api/logo?url=' + encodeURIComponent(rawLogo)
         };
-      }).filter(t => t.url);
+      }).filter(Boolean);
 
       if (teams.length === 0) throw new Error('No teams found in response');
 
       renderGrid();
-      statusEl.textContent = `${teams.length} teams loaded`;
+      searchEl.disabled = false;
       downloadAllBtn.disabled = false;
+      applyFilter();
     } catch (err) {
-      grid.innerHTML = `<div class="error">
-        Couldn't load the team list (${err.message}).<br>
-        Make sure the api/teams.js and api/logo.js functions deployed correctly on Vercel, then reload.
-      </div>`;
-      statusEl.textContent = 'Failed to load';
+      showError(err.message);
     }
   }
 
   function renderGrid() {
+    grid.setAttribute('aria-busy', 'false');
     grid.innerHTML = '';
-    teams.forEach((team, i) => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <img src="${team.url}" alt="${team.name} logo" loading="lazy">
-        <div class="name">${team.name}</div>
-        <button data-index="${i}">Download PNG</button>
-      `;
-      grid.appendChild(card);
-    });
+    cards = teams.map((team, i) => {
+      const el = document.createElement('article');
+      el.className = 'card';
+      el.style.setProperty('--team', team.color);
+      el.style.setProperty('--i', i);
 
-    grid.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', () => downloadSingle(teams[+btn.dataset.index], btn));
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+      tile.dataset.abbr = team.abbr;
+      const img = document.createElement('img');
+      img.src = team.url;
+      img.alt = team.name + ' logo';
+      img.width = 118; img.height = 118;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.addEventListener('error', () => { img.remove(); tile.classList.add('broken'); });
+      tile.appendChild(img);
+
+      const tag = document.createElement('div');
+      tag.className = 'tag';
+
+      const abbr = document.createElement('div');
+      abbr.className = 'abbr';
+      abbr.textContent = team.abbr;
+
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = team.name;
+
+      const btn = document.createElement('button');
+      btn.className = 'dl';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Download ${team.file} (${team.name} logo)`);
+      setBtn(btn, ICON_DOWNLOAD, 'Download', team.file);
+      btn.addEventListener('click', () => downloadSingle(team, btn));
+
+      tag.append(abbr, name, btn);
+      el.append(tile, tag);
+      grid.appendChild(el);
+      return { el, team };
     });
   }
 
+  function setBtn(btn, icon, text, file) {
+    btn.innerHTML = icon;
+    const verb = document.createElement('span');
+    verb.className = file ? 'verb' : '';
+    verb.textContent = text;
+    btn.appendChild(verb);
+    if (file) {
+      const f = document.createElement('span');
+      f.className = 'file';
+      f.textContent = file;
+      btn.appendChild(f);
+    }
+  }
+
+  function applyFilter() {
+    const q = searchEl.value.trim().toLowerCase();
+    let shown = 0;
+    cards.forEach(({ el, team }) => {
+      const match = !q || team.name.toLowerCase().includes(q) || team.abbr.toLowerCase().includes(q);
+      el.hidden = !match;
+      if (match) shown++;
+    });
+
+    const old = grid.querySelector('.message');
+    if (old) old.remove();
+
+    if (shown === 0) {
+      const m = document.createElement('div');
+      m.className = 'message';
+      m.innerHTML = '<strong>No team matches that search.</strong><br>Try a city, a team name, or an abbreviation like KC.';
+      grid.appendChild(m);
+      statusEl.textContent = 'No matches';
+    } else if (q) {
+      statusEl.innerHTML = `Showing <strong>${shown}</strong> of ${teams.length} teams`;
+    } else {
+      statusEl.innerHTML = `<strong>${teams.length}</strong> teams`;
+    }
+  }
+
   async function downloadSingle(team, btn) {
-    const originalText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = 'Downloading…';
+    setBtn(btn, ICON_DOWNLOAD, 'Downloading…');
     try {
       const res = await fetch(team.url);
-      const blob = await res.blob();
-      triggerDownload(blob, safeFileName(team.name) + '.png');
-      btn.textContent = 'Saved ✓';
+      if (!res.ok) throw new Error('status ' + res.status);
+      triggerDownload(await res.blob(), team.file);
+      btn.classList.add('done');
+      setBtn(btn, ICON_CHECK, 'Downloaded');
     } catch (err) {
-      btn.textContent = 'Failed';
+      btn.classList.add('fail');
+      setBtn(btn, ICON_DOWNLOAD, 'Failed, try again');
     } finally {
-      setTimeout(() => { btn.disabled = false; btn.textContent = originalText; }, 1500);
+      setTimeout(() => {
+        btn.classList.remove('done', 'fail');
+        setBtn(btn, ICON_DOWNLOAD, 'Download', team.file);
+        btn.disabled = false;
+      }, 1600);
     }
   }
 
@@ -273,28 +640,55 @@
 
   async function downloadAll() {
     downloadAllBtn.disabled = true;
-    const originalText = downloadAllBtn.textContent;
+    downloadAllBtn.classList.add('busy');
     const zip = new JSZip();
-    let done = 0;
+    const failed = [];
+    let done = 0, cursor = 0;
 
-    for (const team of teams) {
-      try {
-        const res = await fetch(team.url);
-        const blob = await res.blob();
-        zip.file(safeFileName(team.name) + '.png', blob);
-      } catch (e) {
-        // skip any logo that fails, keep going
-      }
+    const tick = () => {
       done++;
-      downloadAllBtn.textContent = `Zipping… ${done}/${teams.length}`;
+      downloadAllBtn.style.setProperty('--p', (done / teams.length * 100) + '%');
+      downloadAllLbl.textContent = `Zipping ${done}/${teams.length}`;
+    };
+
+    async function worker() {
+      while (cursor < teams.length) {
+        const team = teams[cursor++];
+        try {
+          const res = await fetch(team.url);
+          if (!res.ok) throw new Error('status ' + res.status);
+          zip.file(team.file, await res.blob());
+        } catch (e) {
+          failed.push(team.abbr);
+        }
+        tick();
+      }
     }
 
-    const content = await zip.generateAsync({ type: 'blob' });
-    triggerDownload(content, 'nfl-team-logos.zip');
-    downloadAllBtn.textContent = originalText;
+    downloadAllLbl.textContent = `Zipping 0/${teams.length}`;
+    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+
+    if (failed.length < teams.length) {
+      const content = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+      triggerDownload(content, 'nfl-team-logos.zip');
+    }
+
+    if (failed.length === 0) {
+      statusEl.innerHTML = `Downloaded <strong>${teams.length}</strong> logos in nfl-team-logos.zip`;
+    } else if (failed.length < teams.length) {
+      statusEl.textContent = `Downloaded ${teams.length - failed.length} logos. Couldn’t fetch: ${failed.join(', ')}`;
+    } else {
+      statusEl.textContent = 'Couldn’t fetch any logos. Try again in a moment.';
+    }
+
+    downloadAllLbl.textContent = ALL_LABEL;
+    downloadAllBtn.style.removeProperty('--p');
+    downloadAllBtn.classList.remove('busy');
     downloadAllBtn.disabled = false;
+    setTimeout(applyFilter, 4000);
   }
 
+  searchEl.addEventListener('input', applyFilter);
   downloadAllBtn.addEventListener('click', downloadAll);
   loadTeams();
 </script>
